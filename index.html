@@ -3,152 +3,127 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Google Drive Clone</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    />
+    <title>Minimal Cloud Storage</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        background-color: #f0f4f8;
+        color: #333;
+        text-align: center;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 50px;
+        background: #ffffff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #0056b3;
+      }
+      .nav-links a {
+        margin-left: 20px;
+        text-decoration: none;
+        color: #0056b3;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .hero {
+        margin: 60px auto;
+        max-width: 700px;
+      }
+      .hero h1 {
+        font-size: 42px;
+        margin-bottom: 10px;
+        color: #003366;
+      }
+      .hero p {
+        font-size: 20px;
+        margin-bottom: 25px;
+        color: #555;
+      }
+      .hero a {
+        text-decoration: none;
+      }
+      .hero button {
+        padding: 12px 24px;
+        font-size: 18px;
+        border: none;
+        background: #007bff;
+        color: white;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: 0.3s;
+      }
+      .hero button:hover {
+        background: #0056b3;
+      }
+      .features {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 50px;
+      }
+      .feature {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 250px;
+      }
+      .feature h3 {
+        color: #003366;
+      }
+      .footer {
+        margin-top: 60px;
+        padding: 20px;
+        background: #003366;
+        color: white;
+      }
+    </style>
   </head>
   <body>
-    <div class="drive-container">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-content">
-          <button id="menu-toggle" class="menu-button">
-            <i class="fas fa-bars"></i>
-          </button>
-          <div class="logo">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 87.3 78"
-              class="drive-logo"
-            >
-              <path
-                d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5l5.4 9.35z"
-                fill="#0066da"
-              />
-              <path
-                d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0-1.2 4.5h27.5l16.15-28z"
-                fill="#00ac47"
-              />
-              <path
-                d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z"
-                fill="#ea4335"
-              />
-              <path
-                d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.85 0H34.45c-1.65 0-3.2.4-4.55 1.2L43.65 25z"
-                fill="#00832d"
-              />
-              <path
-                d="M59.8 53H27.45L13.7 76.8c1.35.8 2.9 1.2 4.55 1.2h50.6c1.65 0 3.2-.4 4.55-1.2L59.8 53z"
-                fill="#2684fc"
-              />
-              <path
-                d="M73.4 26.5l-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53h27.5c0-1.55-.4-3.1-1.2-4.5l-12.7-22z"
-                fill="#ffba00"
-              />
-            </svg>
-            <h1>Drive</h1>
-          </div>
-          <div class="search-container">
-            <div class="search-icon">
-              <i class="fas fa-search"></i>
-            </div>
-            <input
-              type="text"
-              placeholder="Search in Drive"
-              class="search-input"
-            />
-          </div>
-          <button class="upload-button">
-            <i class="fas fa-upload"></i>
-            <span class="upload-text">Upload</span>
-          </button>
-        </div>
-      </header>
-
-      <!-- Main content -->
-      <div class="main-container">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar">
-          <div class="sidebar-content">
-            <div class="sidebar-header mobile-only">
-              <h2>Drive Menu</h2>
-              <button id="close-sidebar" class="close-button">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div class="nav-items">
-              <button class="nav-button active">
-                <i class="fas fa-hdd"></i>
-                My Drive
-              </button>
-              <button class="nav-button">
-                <i class="fas fa-clock"></i>
-                Recent
-              </button>
-              <button class="nav-button">
-                <i class="fas fa-users"></i>
-                Shared with me
-              </button>
-              <button class="nav-button">
-                <i class="fas fa-star"></i>
-                Starred
-              </button>
-              <button class="nav-button">
-                <i class="fas fa-trash"></i>
-                Trash
-              </button>
-            </div>
-            <div class="storage-section">
-              <div class="storage-item">
-                <div class="storage-header">
-                  <i class="fas fa-cloud"></i>
-                  <span>Storage</span>
-                </div>
-                <div class="storage-details">
-                  <div class="storage-bar">
-                    <div class="storage-used"></div>
-                  </div>
-                  <p class="storage-text">7.2 GB of 15 GB used</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <!-- Main content area -->
-        <main class="content">
-          <div class="file-section">
-            <h2>My Drive</h2>
-            <div id="my-drive-files" class="file-grid"></div>
-          </div>
-
-          <div class="file-section">
-            <h2>Recent</h2>
-            <div id="recent-files" class="file-grid"></div>
-          </div>
-        </main>
+    <header>
+      <div class="logo">Cloudify</div>
+      <div class="nav-links">
+        <a href="#">Sign In</a>
+        <a href="#">Sign Up</a>
       </div>
-    </div>
+    </header>
 
-    <!-- Mobile overlay -->
-    <div id="sidebar-overlay" class="overlay"></div>
+    <section class="hero">
+      <h1>Store, Access, and Share – Effortlessly.</h1>
+      <p>Secure cloud storage with a minimalist and intuitive design.</p>
+      <a href="home.html">
+        <button>Get Started</button>
+      </a>
+    </section>
 
-    <!-- File context menu (dropdown) template -->
-    <div id="context-menu-template" class="context-menu" style="display: none">
-      <ul>
-        <li>Rename</li>
-        <li>Download</li>
-        <li>Share</li>
-        <li class="delete-option">Delete</li>
-      </ul>
-    </div>
+    <section class="features">
+      <div class="feature">
+        <h3>Secure Storage</h3>
+        <p>Your files are encrypted and safe.</p>
+      </div>
+      <div class="feature">
+        <h3>Easy Sharing</h3>
+        <p>Share files with anyone in one click.</p>
+      </div>
+      <div class="feature">
+        <h3>Fast Access</h3>
+        <p>Retrieve your files anytime, anywhere.</p>
+      </div>
+    </section>
 
-    <!-- File upload input (hidden) -->
-    <input type="file" id="file-upload" multiple style="display: none" />
-
-    <script src="app.js"></script>
+    <footer class="footer">
+      <p>&copy; 2025 Cloudify. All rights reserved.</p>
+    </footer>
   </body>
 </html>
