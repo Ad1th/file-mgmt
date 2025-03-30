@@ -160,12 +160,16 @@ async function loadFiles() {
   try {
     filesContainer.innerHTML = '<div class="loading">Loading files...</div>';
 
-    const { data, error } = await supabase
-      .from("files")
-      .select("*")
-      .eq("parent_id", currentFolderId)
-      .order("type")
-      .order("name");
+    let query = supabase.from("files").select("*").order("type").order("name");
+
+    // Use .is() for null values
+    if (currentFolderId === null) {
+      query = query.is("parent_id", null);
+    } else {
+      query = query.eq("parent_id", currentFolderId);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
 
