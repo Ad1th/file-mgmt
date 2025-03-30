@@ -59,7 +59,7 @@ authSubmit.addEventListener("click", async () => {
   if (response.error) {
     alert(response.error.message);
   } else {
-    alert("Success! If first signup, check email for verification...");
+    alert("Success!");
     authStatus.textContent = `Logged in as ${response.data.user.email}`;
     authModal.style.display = "none";
     window.location.href = "home.html";
