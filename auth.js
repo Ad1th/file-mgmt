@@ -59,20 +59,20 @@ authSubmit.addEventListener("click", async () => {
   if (response.error) {
     alert(response.error.message);
   } else {
-    alert("Success! Check your email for verification.");
+    alert("Success! If first signup, check email for verification...");
     authStatus.textContent = `Logged in as ${response.data.user.email}`;
     authModal.style.display = "none";
     window.location.href = "home.html";
   }
 });
 
-// Handle Google Login
-googleAuthBtn.addEventListener("click", async () => {
-  const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
-  if (error) {
-    console.error("Google Auth Error:", error.message);
-  }
-});
+// // Handle Google Login
+// googleAuthBtn.addEventListener("click", async () => {
+//   const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+//   if (error) {
+//     console.error("Google Auth Error:", error.message);
+//   }
+// });
 
 // Check Authentication Status
 async function checkAuth() {
