@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to Your GDrive Clone</h1>
+
+    <h2>Upload File</h2>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <label for="file-upload">Choose a file:</label>
+        <input type="file" id="file-upload" name="file" required>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Your Files</h2>
+    <ul id="file-list">
+        <% if (files && files.length > 0) { %>
+            <% files.forEach(file => { %>
+                <li><a href="<%= file.url %>" target="_blank"><%= file.name %></a></li>
+            <% }); %>
+        <% } else { %>
+            <li>No files uploaded yet.</li>
+        <% } %>
+    </ul>
+
+    <h2>Create New Folder</h2>
+  <form action="/create-folder" method="POST">
+    <label for="folder-name">Folder Name:</label>
+    <input type="text" id="folder-name" name="folderName" required>
+    <br>
+    <button type="submit">Create Folder</button>
+  </form>
+
+  <h2>Your Folders</h2>
+<ul>
+    <% if (folders && folders.length > 0) { %>
+        <% folders.forEach(folder => { %>
+            <li>
+                <a href="/folder/<%= folder.id %>"><%= folder.name %></a>
+            </li>
+        <% }); %>
+    <% } else { %>
+        <li>No folders available.</li>
+    <% } %>
+</ul>
+</body>
+</html>
