@@ -1,264 +1,279 @@
-// Sample data
-const files = [
-  { id: "1", name: "Documents", type: "folder", modified: "Mar 25, 2025" },
-  { id: "2", name: "Projects", type: "folder", modified: "Mar 28, 2025" },
-  { id: "3", name: "Photos", type: "folder", modified: "Mar 29, 2025" },
-  { id: "4", name: "vacation.jpg", type: "image", modified: "Mar 15, 2025" },
-  { id: "5", name: "report.docx", type: "document", modified: "Mar 20, 2025" },
-  {
-    id: "6",
-    name: "budget.xlsx",
-    type: "spreadsheet",
-    modified: "Mar 22, 2025",
-  },
-  { id: "7", name: "app.js", type: "code", modified: "Mar 24, 2025" },
-  { id: "8", name: "notes.txt", type: "other", modified: "Mar 26, 2025" },
-  { id: "9", name: "profile.png", type: "image", modified: "Mar 27, 2025" },
-  {
-    id: "10",
-    name: "presentation.pptx",
-    type: "document",
-    modified: "Mar 30, 2025",
-  },
-];
+// Initialize Supabase
+const SUPABASE_URL = "https://cspjbqypspcpojibljrl.supabase.co";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzcGpicXlwc3BjcG9qaWJsanJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzMjM0NjYsImV4cCI6MjA1ODg5OTQ2Nn0.QAEyQ_ToPbERKjinEfKl8kSvjH8WdStVsR-4TPN9WXA";
+
+// Global Supabase client variable
+let supabase;
 
 // DOM Elements
-const menuToggle = document.getElementById("menu-toggle");
-const sidebar = document.getElementById("sidebar");
-const closeSidebar = document.getElementById("close-sidebar");
-const overlay = document.getElementById("sidebar-overlay");
-const uploadButton = document.querySelector(".upload-button");
+const fileUploadBtn = document.getElementById("upload-btn");
 const fileUploadInput = document.getElementById("file-upload");
-const myDriveFilesContainer = document.getElementById("my-drive-files");
-const recentFilesContainer = document.getElementById("recent-files");
+const filesContainer = document.getElementById("files-container");
+const toggleSidebarBtn = document.getElementById("toggle-sidebar");
+const sidebar = document.querySelector(".sidebar");
+const createFolderBtn = document.getElementById("create-folder-btn");
+const currentPathEl = document.getElementById("current-path");
+
+// State
+let currentFolderId = null;
+let folderPath = [{ id: null, name: "My Drive" }];
+let storageUsed = 0;
 
 // Initialize the app
-document.addEventListener("DOMContentLoaded", () => {
-  // Render files
-  renderFiles(myDriveFilesContainer, files);
-  renderFiles(recentFilesContainer, files.slice(0, 5));
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    // First, load the Supabase library
+    await loadSupabaseScript();
 
-  // Setup event listeners
-  setupEventListeners();
+    // Now we can create the client
+    supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log("Supabase loaded successfully");
+
+    // Add event listeners
+    fileUploadBtn.addEventListener("click", () => fileUploadInput.click());
+    fileUploadInput.addEventListener("change", handleFileUpload);
+    toggleSidebarBtn.addEventListener("click", toggleSidebar);
+    createFolderBtn.addEventListener("click", createFolder);
+
+    // Create sidebar overlay for mobile
+    const overlay = document.createElement("div");
+    overlay.className = "sidebar-overlay";
+    overlay.addEventListener("click", toggleSidebar);
+    document.body.appendChild(overlay);
+
+    // Load files
+    await loadFiles();
+
+    // Update storage info
+    await updateStorageInfo();
+  } catch (error) {
+    console.error("Failed to initialize app:", error);
+    alert(
+      "Failed to initialize the application. Please refresh and try again."
+    );
+  }
 });
 
-// Render files in a container
-function renderFiles(container, filesList) {
-  container.innerHTML = "";
-
-  filesList.forEach((file) => {
-    const fileItem = document.createElement("div");
-    fileItem.className = "file-item";
-    fileItem.dataset.id = file.id;
-
-    const icon = getFileIcon(file.type);
-
-    fileItem.innerHTML = `
-            <div class="file-content">
-                <i class="file-icon ${icon}"></i>
-                <div class="file-name">${file.name}</div>
-                <div class="file-date">${file.modified}</div>
-            </div>
-            <button class="file-menu-button">
-                <i class="fas fa-ellipsis-v"></i>
-            </button>
-        `;
-
-    container.appendChild(fileItem);
+// Function to load Supabase script
+function loadSupabaseScript() {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Failed to load Supabase library"));
+    document.head.appendChild(script);
   });
 }
 
-// Get icon class based on file type
-function getFileIcon(type) {
-  switch (type) {
-    case "folder":
-      return "fas fa-folder folder-icon";
-    case "image":
-      return "fas fa-image image-icon";
-    case "document":
-      return "fas fa-file-alt document-icon";
-    case "spreadsheet":
-      return "fas fa-file-excel spreadsheet-icon";
-    case "code":
-      return "fas fa-file-code code-icon";
-    default:
-      return "fas fa-file other-icon";
-  }
+// Function to create Supabase client
+function createSupabaseClient(url, key) {
+  // At this point, the Supabase library is loaded and the global supabase object is available
+  return window.supabase.createClient(url, key);
 }
 
-// Setup all event listeners
-function setupEventListeners() {
-  // Mobile menu toggle
-  menuToggle.addEventListener("click", () => {
-    sidebar.classList.add("open");
-    overlay.style.display = "block";
-  });
-
-  // Close sidebar
-  closeSidebar.addEventListener("click", () => {
-    sidebar.classList.remove("open");
-    overlay.style.display = "none";
-  });
-
-  // Overlay click
-  overlay.addEventListener("click", () => {
-    sidebar.classList.remove("open");
-    overlay.style.display = "none";
-  });
-
-  // File menu buttons
-  document.addEventListener("click", handleFileMenuClick);
-
-  // Handle context menu closing when clicking elsewhere
-  document.addEventListener("click", (e) => {
-    const activeMenu = document.querySelector(
-      '.context-menu:not([style*="display: none"])'
-    );
-    if (
-      activeMenu &&
-      !activeMenu.contains(e.target) &&
-      !e.target.classList.contains("file-menu-button")
-    ) {
-      activeMenu.style.display = "none";
-    }
-  });
-
-  // Upload button click
-  uploadButton.addEventListener("click", () => {
-    fileUploadInput.click();
-  });
-
-  // File upload change
-  fileUploadInput.addEventListener("change", handleFileUpload);
+// Toggle sidebar on mobile
+function toggleSidebar() {
+  sidebar.classList.toggle("active");
+  document.querySelector(".sidebar-overlay").classList.toggle("active");
 }
 
-// Handle file menu button clicks
-function handleFileMenuClick(e) {
-  const menuButton = e.target.closest(".file-menu-button");
+// Create a new folder
+async function createFolder() {
+  const folderName = prompt("Enter folder name:");
+  if (!folderName || folderName.trim() === "") return;
 
-  if (!menuButton) return;
+  try {
+    const { data, error } = await supabase
+      .from("files")
+      .insert({
+        name: folderName.trim(),
+        type: "folder",
+        parent_id: currentFolderId,
+        size: 0,
+      })
+      .select();
 
-  e.stopPropagation();
+    if (error) throw error;
 
-  // Hide any open menus
-  const openMenus = document.querySelectorAll(
-    '.context-menu:not([style*="display: none"])'
-  );
-  openMenus.forEach((menu) => (menu.style.display = "none"));
-
-  // Get file item
-  const fileItem = menuButton.closest(".file-item");
-  const fileId = fileItem.dataset.id;
-
-  // Clone the template menu
-  const template = document.getElementById("context-menu-template");
-  const contextMenu = template.cloneNode(true);
-  contextMenu.id = "";
-  contextMenu.style.display = "block";
-
-  // Position the menu
-  const rect = menuButton.getBoundingClientRect();
-  contextMenu.style.top = `${rect.bottom + window.scrollY}px`;
-  contextMenu.style.left = `${rect.left + window.scrollX}px`;
-
-  // Add event listeners to menu items
-  const menuItems = contextMenu.querySelectorAll("li");
-  menuItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      handleMenuAction(item.textContent.toLowerCase(), fileId);
-      contextMenu.style.display = "none";
-    });
-  });
-
-  // Add to document
-  document.body.appendChild(contextMenu);
-}
-
-// Handle menu actions
-function handleMenuAction(action, fileId) {
-  const file = files.find((f) => f.id === fileId);
-
-  switch (action) {
-    case "rename":
-      // Implement rename functionality
-      const newName = prompt("Enter new name:", file.name);
-      if (newName && newName.trim() !== "") {
-        file.name = newName.trim();
-        // Re-render files
-        renderFiles(myDriveFilesContainer, files);
-        renderFiles(recentFilesContainer, files.slice(0, 5));
-      }
-      break;
-    case "download":
-      // Implement download functionality
-      alert(`Downloading ${file.name}...`);
-      break;
-    case "share":
-      // Implement share functionality
-      alert(`Sharing options for ${file.name}`);
-      break;
-    case "delete":
-      // Implement delete functionality
-      if (confirm(`Are you sure you want to delete ${file.name}?`)) {
-        const index = files.findIndex((f) => f.id === fileId);
-        if (index !== -1) {
-          files.splice(index, 1);
-          // Re-render files
-          renderFiles(myDriveFilesContainer, files);
-          renderFiles(recentFilesContainer, files.slice(0, 5));
-        }
-      }
-      break;
+    await loadFiles();
+  } catch (error) {
+    console.error("Error creating folder:", error);
+    alert("Failed to create folder. Please try again.");
   }
 }
 
 // Handle file upload
-function handleFileUpload(e) {
-  const uploadedFiles = e.target.files;
+async function handleFileUpload(e) {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
 
-  if (uploadedFiles.length === 0) return;
+  // Show loading indicator
+  filesContainer.innerHTML = '<div class="loading">Uploading files...</div>';
 
-  // Create file objects and add to data
-  Array.from(uploadedFiles).forEach((file) => {
-    // Generate new ID
-    const newId = (
-      Math.max(...files.map((f) => parseInt(f.id))) + 1
-    ).toString();
+  for (const file of files) {
+    try {
+      // Upload file to Supabase Storage
+      const filePath = `${currentFolderId || "root"}/${Date.now()}_${
+        file.name
+      }`;
+      const { data: storageData, error: storageError } = await supabase.storage
+        .from("drive-files")
+        .upload(filePath, file);
 
-    // Determine file type
-    let type = "other";
-    if (file.name.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i)) {
-      type = "image";
-    } else if (file.name.match(/\.(doc|docx|pdf|txt|rtf)$/i)) {
-      type = "document";
-    } else if (file.name.match(/\.(xls|xlsx|csv)$/i)) {
-      type = "spreadsheet";
-    } else if (file.name.match(/\.(js|py|java|html|css|c|cpp|php)$/i)) {
-      type = "code";
+      if (storageError) throw storageError;
+
+      // Determine file type
+      let type = "other";
+      if (file.name.match(/\.(jpeg|jpg|png|gif|bmp|webp)$/i)) type = "image";
+      else if (file.name.match(/\.(doc|docx|pdf|txt|rtf)$/i)) type = "document";
+      else if (file.name.match(/\.(xls|xlsx|csv)$/i)) type = "spreadsheet";
+      else if (file.name.match(/\.(js|py|java|html|css|c|cpp|php)$/i))
+        type = "code";
+
+      // Add file record to database
+      const { data, error } = await supabase
+        .from("files")
+        .insert({
+          name: file.name,
+          type,
+          size: file.size,
+          path: filePath,
+          parent_id: currentFolderId,
+        })
+        .select();
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error uploading file:", error);
     }
+  }
 
-    // Create new file object
-    const newFile = {
-      id: newId,
-      name: file.name,
-      type: type,
-      modified: new Date().toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      // Store the actual file data for future use
-      fileData: file,
-    };
-
-    // Add to files array
-    files.unshift(newFile);
-  });
-
-  // Re-render files
-  renderFiles(myDriveFilesContainer, files);
-  renderFiles(recentFilesContainer, files.slice(0, 5));
-
-  // Reset the input
+  // Reset file input and reload files
   fileUploadInput.value = "";
+  await loadFiles();
+  await updateStorageInfo();
+}
+
+// Load files from current folder
+async function loadFiles() {
+  try {
+    filesContainer.innerHTML = '<div class="loading">Loading files...</div>';
+
+    const { data, error } = await supabase
+      .from("files")
+      .select("*")
+      .eq("parent_id", currentFolderId)
+      .order("type")
+      .order("name");
+
+    if (error) throw error;
+
+    renderFiles(data || []);
+  } catch (error) {
+    console.error("Error loading files:", error);
+    filesContainer.innerHTML =
+      '<div class="loading">Error loading files. Please refresh.</div>';
+  }
+}
+
+// Render files to the container
+function renderFiles(files) {
+  if (files.length === 0) {
+    filesContainer.innerHTML =
+      '<div class="loading">No files in this folder.</div>';
+    return;
+  }
+
+  filesContainer.innerHTML = "";
+
+  files.forEach((file) => {
+    const fileEl = document.createElement("div");
+    fileEl.className = "file-item";
+
+    // Format date and get icon based on type
+    const date = new Date(file.modified_at || file.created_at);
+    const formattedDate = date.toLocaleDateString();
+    let iconClass =
+      file.type === "folder"
+        ? "fa-folder"
+        : file.type === "image"
+        ? "fa-file-image"
+        : "fa-file";
+
+    fileEl.innerHTML = `
+      <div class="file-icon ${file.type}">
+        <i class="fas ${iconClass}"></i>
+      </div>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-date">${formattedDate}</div>
+      </div>
+    `;
+
+    // Add event listeners for folders/files
+    fileEl.addEventListener("click", () => {
+      if (file.type === "folder") navigateToFolder(file.id, file.name);
+      else previewFile(file);
+    });
+
+    filesContainer.appendChild(fileEl);
+  });
+}
+
+// Navigate to a folder
+async function navigateToFolder(folderId, folderName) {
+  currentFolderId = folderId;
+  folderPath.push({ id: folderId, name: folderName });
+  updateBreadcrumb();
+  await loadFiles();
+}
+
+// Update breadcrumb navigation
+function updateBreadcrumb() {
+  currentPathEl.textContent = folderPath.map((f) => f.name).join(" > ");
+}
+
+// Preview a file
+async function previewFile(file) {
+  if (!file.path) {
+    alert("File not available for preview.");
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase.storage
+      .from("drive-files")
+      .createSignedUrl(file.path, 60); // 60 seconds expiry
+
+    if (error) throw error;
+
+    // Open the file in a new tab
+    window.open(data.signedUrl, "_blank");
+  } catch (error) {
+    console.error("Error previewing file:", error);
+    alert("Could not preview file. Please try again.");
+  }
+}
+
+// Update storage info
+async function updateStorageInfo() {
+  try {
+    const { data, error } = await supabase.from("files").select("size");
+
+    if (error) throw error;
+
+    storageUsed =
+      data.reduce((total, f) => total + (f.size || 0), 0) /
+      (1024 * 1024 * 1024); // Convert bytes to GB
+
+    document.querySelector(".storage-used").style.width =
+      Math.min((storageUsed / 15) * 100, 100) + "%"; // Assuming max is 15GB
+
+    document.querySelector(
+      ".storage-text"
+    ).textContent = `${storageUsed.toFixed(2)} GB of 15 GB used`;
+  } catch (error) {
+    console.error(error);
+  }
 }
