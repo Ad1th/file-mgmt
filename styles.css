@@ -362,3 +362,15 @@ main {
     max-width: none;
   }
 }
+#logoutBtn {
+  background-color: red;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#logoutBtn:hover {
+  background-color: darkred;
+}

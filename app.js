@@ -175,6 +175,7 @@ async function loadFiles() {
     } = await supabase.auth.getUser();
     if (!user) {
       alert("You must be logged in to view files.");
+      window.location.href = "index.html"; // Redirect to login page
       return;
     }
 
@@ -298,8 +299,30 @@ async function updateStorageInfo() {
 
     document.querySelector(
       ".storage-text"
-    ).textContent = `${storageUsed.toFixed(2)} GB of 15 GB used`;
+    ).textContent = `${storageUsed.toFixed(2)} GB of 1 GB used`;
   } catch (error) {
     console.error(error);
   }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const logoutButton = document.getElementById("logoutBtn");
+
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async function () {
+      // Clear session storage or local storage
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("sb-cspjbqypspcpojibljrl-auth-token"); // Removes JWT
+
+      // Logout from Supabase
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Logout failed:", error.message);
+      } else {
+        alert("Logged out successfully!");
+        window.location.href = "index.html"; // Redirect to login page
+      }
+    });
+  }
+});
