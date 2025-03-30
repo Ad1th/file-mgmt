@@ -108,15 +108,23 @@ async function handleFileUpload(e) {
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
 
+  // Get logged-in user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    alert("You must be logged in to upload files.");
+    return;
+  }
+  const userId = user.id;
+
   // Show loading indicator
   filesContainer.innerHTML = '<div class="loading">Uploading files...</div>';
 
   for (const file of files) {
     try {
       // Upload file to Supabase Storage
-      const filePath = `${currentFolderId || "root"}/${Date.now()}_${
-        file.name
-      }`;
+      const filePath = `uploads/${userId}/${Date.now()}_${file.name}`;
       const { data: storageData, error: storageError } = await supabase.storage
         .from("drive-files")
         .upload(filePath, file);
@@ -131,10 +139,11 @@ async function handleFileUpload(e) {
       else if (file.name.match(/\.(js|py|java|html|css|c|cpp|php)$/i))
         type = "code";
 
-      // Add file record to database
+      // Add file record to database (with user ID)
       const { data, error } = await supabase
         .from("files")
         .insert({
+          user_id: userId, // Associate file with user
           name: file.name,
           type,
           size: file.size,
@@ -160,9 +169,22 @@ async function loadFiles() {
   try {
     filesContainer.innerHTML = '<div class="loading">Loading files...</div>';
 
-    let query = supabase.from("files").select("*").order("type").order("name");
+    // Get logged-in user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      alert("You must be logged in to view files.");
+      return;
+    }
 
-    // Use .is() for null values
+    let query = supabase
+      .from("files")
+      .select("*")
+      .eq("user_id", user.id) // Fetch only the logged-in user's files
+      .order("type")
+      .order("name");
+
     if (currentFolderId === null) {
       query = query.is("parent_id", null);
     } else {
