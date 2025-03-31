@@ -3,3 +3,7 @@
   "builds": [{ "src": "app.js", "use": "@vercel/node" }],
   "routes": [{ "src": "/(.*)", "dest": "app.js" }]
 }
+"scripts": {
+  "start": "node app.js",
+  "dev": "nodemon app.js"
+}
