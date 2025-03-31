@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folder: <%= folder.name %> - Cloudify</title>
+  <style>
+    /* Base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f0f5ff;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background-color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #4285f4;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #4285f4;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: #f0f5ff;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      width: 100%;
+    }
+
+    .folder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .folder-title {
+      font-size: 1.8rem;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .folder-icon {
+      color: #4285f4;
+    }
+
+    /* Grid layout */
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .folder-card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .folder-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(66, 133, 244, 0.15);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      color: #4285f4;
+      font-weight: 600;
+    }
+
+    /* Upload section */
+    .upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.3s;
+      cursor: pointer;
+    }
+
+    .upload-area:hover {
+      border-color: #4285f4;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      color: #4285f4;
+      margin-bottom: 1rem;
+    }
+
+    .upload-text {
+      margin-bottom: 1rem;
+      color: #666;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    /* File list */
+    .file-list {
+      list-style: none;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem;
+      border-radius: 5px;
+      margin-bottom: 0.5rem;
+      transition: background-color 0.3s;
+    }
+
+    .file-item:hover {
+      background-color: #f5f9ff;
+    }
+
+    .file-icon {
+      margin-right: 1rem;
+      font-size: 1.5rem;
+      color: #4285f4;
+    }
+
+    .file-details {
+      flex: 1;
+    }
+
+    .file-name {
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+      color: #333;
+    }
+
+    .file-meta {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .file-action-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 0.3rem;
+      border-radius: 3px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .file-action-btn:hover {
+      background-color: #f0f5ff;
+      color: #4285f4;
+    }
+
+    .delete-btn:hover {
+      color: #ea4335;
+    }
+
+    /* Create folder form */
+    .create-folder-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .create-folder-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .create-folder-input:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #3367d6;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: #4285f4;
+      border: 1px solid #4285f4;
+    }
+
+    .btn-outline:hover {
+      background-color: #f0f5ff;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #ddd;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #333;
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .folder-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="navbar">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/dashboard" class="back-btn">
+          ← Back to Dashboard
+        </a>
+        <a href="/" class="logo">
+          <span class="logo-icon">☁️</span> Cloudify
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="folder-header">
+      <h1 class="folder-title">
+        <span class="folder-icon">📁</span>
+        <%= folder.name %>
+      </h1>
+    </div>
+
+    <div class="folder-grid">
+      <div class="folder-card">
+        <div class="card-header">
+          <h2 class="card-title">Upload Files to Folder</h2>
+        </div>
+        <form action="/folder/<%= folder.id %>/upload" method="POST" enctype="multipart/form-data">
+          <div class="upload-area" onclick="document.getElementById('file-upload').click()">
+            <div class="upload-icon">📤</div>
+            <p class="upload-text">Click to select files or drag and drop</p>
+            <input type="file" id="file-upload" name="file" class="file-input" required>
+            <span id="selected-file">No file selected</span>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Upload File</button>
+        </form>
+      </div>
+
+      <div class="folder-card">
+        <div class="card-header">
+          <h2 class="card-title">Create Subfolder</h2>
+        </div>
+        <form action="/create-folder" method="POST" class="create-folder-form">
+          <input type="hidden" name="parentId" value="<%= folder.id %>">
+          <input type="text" name="folderName" class="create-folder-input" placeholder="Enter subfolder name" required>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
+
+      <div class="folder-card">
+        <div class="card-header">
+          <h2 class="card-title">Files in Folder</h2>
+        </div>
+        <ul class="file-list">
+          <% if (files && files.length > 0) { %>
+            <% files.forEach(file => { %>
+              <li class="file-item">
+                <span class="file-icon">
+                  <% if (file.type === 'image') { %>📷
+                  <% } else if (file.type === 'document') { %>📄
+                  <% } else if (file.type === 'spreadsheet') { %>📊
+                  <% } else if (file.type === 'code') { %>💻
+                  <% } else { %>📁<% } %>
+                </span>
+                <div class="file-details">
+                  <div class="file-name"><%= file.name %></div>
+                  <div class="file-meta">
+                    <% if (file.size) { %>
+                      <%= Math.round(file.size / 1024) %> KB
+                    <% } %>
+                  </div>
+                </div>
+                <div class="file-actions">
+                  <a href="<%= file.url %>" target="_blank" class="file-action-btn" title="View">👁️</a>
+                  <button class="file-action-btn" title="Share">🔗</button>
+                  <form action="/file/<%= file.id %>?_method=DELETE" method="POST" style="display: inline;">
+                    <button type="submit" class="file-action-btn delete-btn" title="Delete">🗑️</button>
+                  </form>
+                </div>
+              </li>
+            <% }); %>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-icon">📄</div>
+              <p>No files in this folder</p>
+            </div>
+          <% } %>
+        </ul>
+      </div>
+
+      <div class="folder-card">
+        <div class="card-header">
+          <h2 class="card-title">Subfolders</h2>
+        </div>
+        <ul class="file-list">
+          <% if (subfolders && subfolders.length > 0) { %>
+            <% subfolders.forEach(subfolder => { %>
+              <li class="file-item">
+                <span class="file-icon">📁</span>
+                <div class="file-details">
+                  <div class="file-name"><%= subfolder.name %></div>
+                </div>
+                <div class="file-actions">
+                  <a href="/folder/<%= subfolder.id %>" class="file-action-btn" title="Open">📂</a>
+                  <button class="file-action-btn" title="Share">🔗</button>
+                  <form action="/file/<%= subfolder.id %>?_method=DELETE" method="POST" style="display: inline;">
+                    <button type="submit" class="file-action-btn delete-btn" title="Delete">🗑️</button>
+                  </form>
+                </div>
+              </li>
+            <% }); %>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-icon">📁</div>
+              <p>No subfolders available</p>
+            </div>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>© 2025 Cloudify. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Display selected file name
+    document.getElementById('file-upload').addEventListener('change', function(e) {
+      const fileName = e.target.files[0] ? e.target.files[0].name : 'No file selected';
+      document.getElementById('selected-file').textContent = fileName;
+    });
+  </script>
+</body>
+</html>
