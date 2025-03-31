@@ -22,8 +22,7 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
 app.use(express.urlencoded({ extended: true }));
-app.set("views", "./views");
-app.set("public", "/public");
+app.set('views', path.join(__dirname, 'views'));
 app.set("view engine", "ejs");
 
 // Middleware to verify authentication
