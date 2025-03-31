@@ -18,7 +18,8 @@
     "express-fileupload": "^1.5.1",
     "jsonwebtoken": "^9.0.2",
     "method-override": "^3.0.0",
-    "supabase": "^2.20.5"
+    "supabase": "^2.20.5",
+    "vercel": "^41.3.0"
   },
   "description": ""
   
