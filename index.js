@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const methodOverride = require("method-override");
+const path = require('path');
 
 require("dotenv").config();
 
